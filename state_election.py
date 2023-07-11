@@ -99,12 +99,14 @@ if show_columns:
     with cols_f2[2]:
         st.plotly_chart(fig_a2, use_container_width=True)
 
-cols_f1 = st.columns(4)
+cols_f1 = st.columns([4, 1, 2, 2, 4])
 with cols_f1[0]:
     st.plotly_chart(fig_0, use_container_width=True)
 with cols_f1[1]:
-    st.plotly_chart(fig_2a, use_container_width=True)
+    st.text('')
 with cols_f1[2]:
-    st.plotly_chart(fig_2b, use_container_width=True)
+    st.plotly_chart(fig_2a, use_container_width=True)
 with cols_f1[3]:
+    st.plotly_chart(fig_2b, use_container_width=True)
+with cols_f1[4]:
         st.plotly_chart(fig_2, use_container_width=True)
