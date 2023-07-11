@@ -13,9 +13,7 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     # state - one of ['SELANGOR', 'PULAU_PINANG', 'NEGERI_SEMBILAN', 'KEDAH']
     # bn_to_ph = 0.3
     # ph_to_bn = 0.5
-    
-    file_mapper = {"SELANGOR": "SELANGOR_2018_DUN_RESULTS", }
-    states = ['SELANGOR', 'PULAU_PINANG', 'NEGERI_SEMBILAN', 'KEDAH']
+    # states = ['SELANGOR', 'PULAU_PINANG', 'NEGERI_SEMBILAN', 'KEDAH']
     cols = ['PARLIAMENTARY CODE', 'STATE', 'MALAY (%)', 'CHINESE (%)', 'INDIANS (%)', 'ORANG ASLI (%)', 'BUMIPUTERA SABAH (%)', 'BUMIPUTERA SARAWAK (%)', 'OTHERS (%)']
     df_c18 = pd.read_csv('data/MALAYSIA_2013_PARLIAMENTARY_COMPOSITION.csv')[cols].set_index('PARLIAMENTARY CODE')
     df_c18['MALAY_2018'] = df_c18['MALAY (%)']/100
@@ -23,7 +21,6 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     cols = ['PARLIAMENTARY CODE', 'STATE', 'MALAY (%)', 'CHINESE (%)', 'INDIANS (%)', 'ORANG ASLI (%)', 'BUMIPUTERA SABAH (%)', 'BUMIPUTERA SARAWAK (%)', 'OTHERS (%)', 'URBAN-RURAL CLASSIFICATION (2022)']
     df_c22 = pd.read_csv('data/MALAYSIA_2022_PARLIAMENT_COMPOSITION.csv')[cols].set_index('PARLIAMENTARY CODE')
     df_c22['MALAY_2022'] = df_c22['MALAY (%)']/100
-    df_c22['URBAN-RURAL CLASSIFICATION (2022)'] = df_c22['MALAY (%)']/100
 
     cols = ['PARLIAMENTARY CODE', 'STATE', 'TOTAL ELECTORATE', 'TOTAL VALID VOTES', 'BN', 'BN CANDIDATE VOTE', 'PH', 'PH CANDIDATE VOTE', 'GS', 'GS CANDIDATE VOTE']
     df_p18 = pd.read_csv('data/MALAYSIA_2018_PARLIAMENTARY_RESULTS.csv')[cols].set_index('PARLIAMENTARY CODE')
@@ -41,7 +38,6 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
         df_s18 = pd.read_csv(f'data/{state}_2018_DUN_RESULTS.csv')[cols].set_index('PARLIAMENTARY CODE')
 
     if state == 'NEGERI_SEMBILAN':
-        print('changing')
         u = df_s18['STATE CONSTITUENCY CODE'] == 'N.27'
         df_s18.loc[u, 'BN VOTE'] = 10397
         df_s18.loc[u, 'PH VOTE'] = 5887
@@ -87,13 +83,21 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     X = fdf[['URBAN-RURAL CLASSIFICATION (2022)']]
     drop_binary_enc = OneHotEncoder(drop='if_binary').fit(X)
     one_hot_urban = drop_binary_enc.transform(X).toarray()
-    fdf['Urban'] = one_hot_urban[:, 2].astype(int)
-    fdf['Rural'] = one_hot_urban[:, 0].astype(int)
+    n = X.shape[1]
+    if n <= 2:
+        fdf['Urban'] = one_hot_urban[:, 0].astype(int)
+        urban_cols = ['Urban']
+    elif n == 3:
+        fdf['Urban'] = one_hot_urban[:, 0].astype(int)
+        fdf['Rural'] = one_hot_urban[:, 2].astype(int)
+        urban_cols = ['Urban', 'Rural']
+    else:
+        raise Exception()
 
     # Model 1: predict PN support 
      # features: previous support parliament results (2018), %Malay 2018, %Malay 2022, % new malay voters, urban/semi-urban classification (Urban, Rural one hot)
      # target: latest support parliament results (2022)    
-    x_cols = ['PN_2018', 'MALAY_2018', 'MALAY_2022', 'NEW_P_MALAY_VOTES_PCT', 'Urban', 'Rural']
+    x_cols = ['PN_2018', 'MALAY_2018', 'MALAY_2022', 'NEW_P_MALAY_VOTES_PCT'] + urban_cols
     y_col = 'PN_2022'
     X_train = fdf[x_cols]
     y_train = fdf[y_col]
@@ -105,7 +109,7 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
 
     fdf['yp_PN_2022'] = y_pred
 
-    x_dun_cols = ['DUN_PN_2018', 'MALAY_2018', 'MALAY_2022', 'NEW_P_MALAY_VOTES_PCT', 'Urban', 'Rural']
+    x_dun_cols = ['DUN_PN_2018', 'MALAY_2018', 'MALAY_2022', 'NEW_P_MALAY_VOTES_PCT']  + urban_cols
     X_test = fdf[x_dun_cols]
     y_pred_test = model.predict(X_test.values)
 
@@ -127,13 +131,15 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     kdf['Majority_FED_2022'] =  compute_majority(kdf[['FED_PN_2022', 'FED_PH_2022', 'FED_BN_2022']])
     kdf['Winner_FED_2022'] = kdf[['FED_PN_2022', 'FED_PH_2022', 'FED_BN_2022']].idxmax(axis=1).apply(lambda x:x.split("_")[1])
     
+    kdf['MALAY_2018'] = fdf['MALAY_2018']
+    kdf['MALAY_2022'] = fdf['MALAY_2022']
     kdf['NEW_MALAY_VOTES%'] = fdf['NEW_P_MALAY_VOTES_PCT']
     kdf['Urban_Rural'] = fdf['URBAN-RURAL CLASSIFICATION (2022)']
     
     kdf['DUN_PN_2018'] = fdf['DUN_PN_2018']
     kdf['DUN_PH_2018'] = fdf['DUN_PH_2018']
     kdf['DUN_BN_2018'] = fdf['DUN_BN_2018']
-    kdf['Majority_DUN_2018'] =  compute_majority(kdf[['DUN_PN_2018', 'DUN_PH_2018', 'DUN_BN_2018']])
+    kdf['Majority_DUN_2018'] = compute_majority(kdf[['DUN_PN_2018', 'DUN_PH_2018', 'DUN_BN_2018']])
     kdf['Winner_DUN_2018'] = kdf[['DUN_PN_2018', 'DUN_PH_2018', 'DUN_BN_2018']].idxmax(axis=1).apply(lambda x:x.split("_")[1])
     
     kdf['MODEL_DUN_PN_2022'] = fdf['yp_DUN_PN_2022']

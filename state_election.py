@@ -11,16 +11,7 @@ title = "Malaysia State Elections 2023"
 st.set_page_config(page_title=title, layout="wide", initial_sidebar_state="collapsed")
 st.title(title)
 
-# (tab_market, tab_sector) = st.tabs(
-#     [
-#         "Market",
-#         "Sector",
-#     ]
-# )
-# with tab_market:
-
 cols_a = st.columns(6)
-
 with cols_a[0]:
     state = st.selectbox("State", ['SELANGOR', 'PULAU_PINANG', 'NEGERI_SEMBILAN', 'KEDAH'])
 
