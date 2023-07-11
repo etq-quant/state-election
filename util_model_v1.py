@@ -9,8 +9,9 @@ def compute_majority(tdf):
     return majority
     
 
-def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
+def run_election_model(state, lost_faith, bn_to_ph, ph_to_bn):
     # state - one of ['SELANGOR', 'PULAU_PINANG', 'NEGERI_SEMBILAN', 'KEDAH']
+    # lost_faith = 0.05
     # bn_to_ph = 0.3
     # ph_to_bn = 0.5
     
@@ -143,27 +144,27 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     kdf['Winner_MODEL_DUN_2022'] = kdf[['MODEL_DUN_PN_2022', 'MODEL_DUN_PH_2022', 'MODEL_DUN_BN_2022']].idxmax(axis=1).apply(lambda x:x.split("_")[2])
     
     kdf = kdf.copy()
-    # kdf['PN_S1'] = kdf['MODEL_DUN_PN_2022'] + (lost_faith)*kdf[['MODEL_DUN_PH_2022', 'MODEL_DUN_BN_2022']].sum(axis=1)
-    # kdf['PH_S1'] = (1-ph_to_none)*kdf['MODEL_DUN_PH_2022']
-    # kdf['BN_S1'] = (1-bn_to_ph)*kdf['MODEL_DUN_BN_2022']
-    # kdf['Majority_S1'] =  compute_majority(kdf[['PN_S1', 'PH_S1', 'BN_S1']])
-    # kdf['Winner_S1'] = kdf[['PN_S1', 'PH_S1', 'BN_S1']].idxmax(axis=1)
+    kdf['PN_S1'] = kdf['MODEL_DUN_PN_2022'] + (lost_faith)*kdf[['MODEL_DUN_PH_2022', 'MODEL_DUN_BN_2022']].sum(axis=1)
+    kdf['PH_S1'] = (1-lost_faith)*kdf['MODEL_DUN_PH_2022']
+    kdf['BN_S1'] = (1-lost_faith)*kdf['MODEL_DUN_BN_2022']
+    kdf['Majority_S1'] =  compute_majority(kdf[['PN_S1', 'PH_S1', 'BN_S1']])
+    kdf['Winner_S1'] = kdf[['PN_S1', 'PH_S1', 'BN_S1']].idxmax(axis=1)
     
-    kdf['PN_S2A'] = kdf['MODEL_DUN_PN_2022'] + (bn_to_pn)*kdf['MODEL_DUN_BN_2022'] 
+    kdf['PN_S2A'] = kdf['MODEL_DUN_PN_2022'] + (1-bn_to_ph)*kdf['MODEL_DUN_BN_2022'] 
     kdf['PH_S2A'] = kdf['MODEL_DUN_PH_2022'] + (bn_to_ph)*kdf['MODEL_DUN_BN_2022']
-    kdf['PH_S2A'] = kdf['PH_S2A'] 
+    kdf['PH_S2A'] = kdf['PH_S2A'] * (1-lost_faith)
     kdf['Majority_S2A'] =  compute_majority(kdf[['PN_S2A', 'PH_S2A']])
     kdf['Winner_S2A'] = kdf[['PN_S2A', 'PH_S2A']].idxmax(axis=1)
     
-    kdf['PN_S2B'] = kdf['MODEL_DUN_PN_2022'] + (ph_to_pn)*kdf['MODEL_DUN_PH_2022'] 
+    kdf['PN_S2B'] = kdf['MODEL_DUN_PN_2022'] + (1-ph_to_bn)*kdf['MODEL_DUN_PH_2022'] 
     kdf['BN_S2B'] = kdf['MODEL_DUN_BN_2022'] + (ph_to_bn)*kdf['MODEL_DUN_PH_2022']
-    kdf['BN_S2B'] = kdf['BN_S2B']
+    kdf['BN_S2B'] = kdf['BN_S2B'] * (1-lost_faith)
     kdf['Majority_S2B'] =  compute_majority(kdf[['PN_S2B', 'BN_S2B']])
     kdf['Winner_S2B'] = kdf[['PN_S2B', 'BN_S2B']].idxmax(axis=1)
 
-    # kdf['Winner_S1'] = kdf['Winner_S1'].apply(lambda x: x.split("_")[0])
-    kdf['Winner_S2A'] = kdf['Winner_S2A'].apply(lambda x: x.split("_")[0])
-    kdf['Winner_S2B'] = kdf['Winner_S2B'].apply(lambda x: x.split("_")[0])
+    kdf['Winner_S1'] = kdf['Winner_S1'].apply(lambda x:x.split("_")[0])
+    kdf['Winner_S2A'] = kdf['Winner_S2A'].apply(lambda x:x.split("_")[0])
+    kdf['Winner_S2B'] = kdf['Winner_S2B'].apply(lambda x:x.split("_")[0])
     kdf['Winner_S2'] = ((kdf['Winner_S2A'] == 'PN') & (kdf['Winner_S2B'] == 'PN')).map({True: "PN", False: "Unity"})
     winner_cols = kdf.columns[kdf.columns.str.startswith("Winner")]
     scenario_df = pd.concat([kdf[w].value_counts(normalize=False) for w in winner_cols], axis=1)
@@ -208,13 +209,13 @@ def get_pie_fig(sr, title):
         textinfo='value',
         hoverinfo='label+percent',
         hole=0.4,
-        textfont_size=16,
+        textfont_size=20,
     )
 
     # Create the layout for the Donut Chart
     layout = go.Layout(
         title=title,
-        title_font=dict(size=18, color='#333'),
+        title_font=dict(size=24, color='#333'),
         width=600,
         height=600,
         margin=dict(t=100, b=0, l=0, r=0),
