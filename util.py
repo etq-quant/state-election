@@ -103,7 +103,7 @@ def run_election_model(state, bn_to_ph, bn_to_pn, ph_to_bn, ph_to_pn):
     y_train = fdf[y_col]
 
     # model = HuberRegressor()
-    model = RandomForestRegressor()
+    model = RandomForestRegressor(random_state=19)
     model.fit(X_train.values, y_train)
     y_pred = model.predict(X_train.values)
 
