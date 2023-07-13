@@ -74,12 +74,12 @@ fig_a0 = get_pie_fig(scenario_df['Winner_FED_2018'], title='Federal 2018')
 fig_a1 = get_pie_fig(scenario_df['Winner_FED_2018'], title='Federal 2022')
 fig_a2 = get_pie_fig(scenario_df['Winner_DUN_2018'], title='DUN 2018')
 
-fig_0 = get_pie_fig(scenario_df['Winner_MODEL_DUN_2022'], title='Base Model - Three-way (DUN2022)')
+fig_0 = get_pie_fig(scenario_df['Winner_MODEL_DUN_2022'], title='Base Model - Three-way (DUN2023)')
 # fig_1 = get_pie_fig(scenario_df['Winner_S1'], title='S1 - Three-Way (DUN2022)')
 
-fig_2a = get_pie_fig(scenario_df['Winner_S2A'], title='S2A - PH Only (DUN2022)')
-fig_2b = get_pie_fig(scenario_df['Winner_S2B'], title='S2B - BN Only (DUN2022)')
-fig_2 = get_pie_fig(scenario_df['Winner_S2'], title='S2 - Optimal Unity (DUN2022)')
+fig_2a = get_pie_fig(scenario_df['Winner_S2A'], title='S2A - PH Only (DUN2023)')
+fig_2b = get_pie_fig(scenario_df['Winner_S2B'], title='S2B - BN Only (DUN2023)')
+fig_2 = get_pie_fig(scenario_df['Winner_S2'], title='S2 - Optimal Unity (DUN2023)')
 
 if show_columns:
     cols_f2 = st.columns(3)
