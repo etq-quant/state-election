@@ -17,7 +17,7 @@ with cols_a[0]:
 
 with cols_a[1]:
     bn_to_ph = st.number_input('Transferability BN to PH %', min_value=0, max_value=100, value=15, step = 1)
-    bn_to_pn = st.number_input('BN to PN %', min_value=0, max_value=100, value=80, step = 1, key='bn_pn')
+    bn_to_pn = st.number_input('BN to PN %', min_value=0, max_value=100, value=85, step = 1, key='bn_pn')
     bn_to_ph /= 100
     bn_to_pn /= 100
     bn_to_none = 1-bn_to_ph-bn_to_pn
@@ -25,7 +25,7 @@ with cols_a[1]:
 
 with cols_a[2]:
     ph_to_bn = st.number_input('Transferability PH to BN %', min_value=0, max_value=100, value=24, step = 1, key='bn_ph')
-    ph_to_pn = st.number_input('PH to PN %', min_value=0, max_value=100, value=71, step = 1, key='ph_pn')
+    ph_to_pn = st.number_input('PH to PN %', min_value=0, max_value=100, value=76, step = 1, key='ph_pn')
     ph_to_bn /= 100
     ph_to_pn /= 100
     ph_to_none = 1-ph_to_bn-ph_to_pn
