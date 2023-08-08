@@ -4,8 +4,8 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from util import run_election_model, get_pie_fig
-from util_model_v2 import run_election_model_v2
+from src.util import run_election_model, get_pie_fig
+from src.util_model_v2 import run_election_model_v2
 from PIL import Image
 
 # Streamlit main layout

@@ -4,7 +4,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.linear_model import HuberRegressor, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor
 # from util_model_v1 import run_election_model
-from util import run_election_model
+from src.util import run_election_model
 
 # PH vs PN
 # PH, PN, Unsure
