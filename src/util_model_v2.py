@@ -98,7 +98,7 @@ def run_election_model_v2(tilt, turnout, skip_model_1=False):
             dun_comp_sub_df.loc[i, key] = val
     dun_comp_sub_df['Turnout_N'] = dun_comp_sub_df['Turnout']/100*dun_comp_sub_df['N']
 
-    state = 'Selangor'
+    state = 'SELANGOR'
     lost_faith = 0
     bn_to_ph = 0.15
     bn_to_pn = 0.85
