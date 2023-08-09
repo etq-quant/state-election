@@ -109,7 +109,10 @@ with tab_1:
 
 
 with tab_2:
-    st.title("Selangor")
+    
+    state_2 = st.selectbox("State", ['SELANGOR', 'KEDAH'])
+    st.title(state_2)
+
     cols_c1 = st.columns([3,3,3])
     with cols_c1[0]:
         tilt_malay = st.number_input('Undecided to Unity (Malay)%', min_value=0, max_value=100, value=0, step = 1, key='tilt_1')
@@ -126,7 +129,7 @@ with tab_2:
     with cols_t1[2]:
         turnout_indian = st.number_input('Turnout (Indian)%', min_value=0, max_value=100, value=92-14, step = 1, key='turnout_3')
     turnout = [turnout_malay/100, turnout_chinese/100, turnout_indian/100]
-    df_v2 = run_election_model_v2(tilt, turnout)
+    df_v2 = run_election_model_v2(state_2, tilt, turnout)
     df_v2.index.name = 'Code'
 
     tr_n = df_v2['Turnout_N'].sum()/df_v2['N'].sum()
